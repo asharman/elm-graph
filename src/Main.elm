@@ -1,7 +1,7 @@
 module Main exposing (Msg(..), main)
 
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta, onResize)
+import Browser.Events exposing (onResize)
 import Canvas exposing (..)
 import Canvas.Settings exposing (..)
 import Canvas.Settings.Line exposing (lineWidth)
@@ -74,8 +74,7 @@ view { width, height } =
 
 
 type Msg
-    = Frame Float
-    | BrowserResized Int Int
+    = BrowserResized Int Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -96,9 +95,6 @@ update msg model =
             , Cmd.none
             )
 
-        Frame deltaTime ->
-            ( model, Cmd.none )
-
 
 main : Program ( Float, Float ) Model Msg
 main =
@@ -109,7 +105,6 @@ main =
         , subscriptions =
             \_ ->
                 Sub.batch
-                    [ onAnimationFrameDelta Frame
-                    , onResize BrowserResized
+                    [ onResize BrowserResized
                     ]
         }
