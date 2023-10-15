@@ -9,16 +9,11 @@ import List.Extra
 import List.Nonempty as NE exposing (ListNonempty)
 import List.Nonempty.Extra as NE
 import Simplex
-import Time exposing (Posix, posixToMillis)
+import Time exposing (Posix)
 
 
 type alias Range =
     ( Posix, Posix )
-
-
-duration : Range -> Int
-duration ( start, end ) =
-    Time.posixToMillis end - Time.posixToMillis start
 
 
 type Signal a
@@ -76,11 +71,11 @@ sample t (Points ps) =
 
         search pairOfPoints =
             let
-                ( t1, v1 ) =
-                    NE.head pairOfPoints
+                t1 =
+                    (Tuple.first << NE.head) pairOfPoints
 
-                ( t2, v2 ) =
-                    NE.last pairOfPoints
+                t2 =
+                    (Tuple.first << NE.last) pairOfPoints
             in
             timeInMillis >= t1 && timeInMillis < t2
     in
@@ -100,11 +95,6 @@ isJust a =
 
         Nothing ->
             False
-
-
-type NextAction
-    = MoveTo
-    | LineTo
 
 
 render : Range -> Signal Float -> { width : Float } -> Renderable
@@ -127,9 +117,7 @@ render range signal { width } =
                         sample (Time.millisToPosix msToSample) signal
                             |> Maybe.map (\v -> ( toFloat i, v ))
                     )
-                |> Debug.log "SAMPLES"
                 |> List.Extra.groupWhile (\a b -> a == b || (isJust a && isJust b))
-                |> Debug.log "GROUPED"
                 |> List.concatMap (NE.fromTuple >> NE.filterMap identity >> path_)
 
         path_ : List Canvas.Point -> List Shape
